@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>El Oráculo RITUA — ZOI CENTRA</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --morado: #5E4B73;
+    --lavanda: #BFAFD6;
+    --verde: #7A8F7B;
+    --hueso: #F5F3EF;
+    --gris: #7D7D7D;
+    --morado-oscuro: #3D2F4E;
+    --morado-claro: #D4C8E8;
+    --dorado: #C9A96E;
+  }
+
+  html, body {
+    min-height: 100%;
+    background: var(--hueso);
+    font-family: 'Jost', sans-serif;
+    color: var(--morado-oscuro);
+    overflow-x: hidden;
+  }
+
+  .screen { display: none; flex-direction: column; align-items: center; }
+  .screen.active { display: flex; }
+
+  /* ══════════════════════════════
+     PANTALLA 1 — BIENVENIDA
+  ══════════════════════════════ */
+  #screen-welcome {
+    min-height: 100vh;
+    padding: 48px 24px;
+    justify-content: center;
+    background:
+      radial-gradient(ellipse at 80% 10%, rgba(191,175,214,0.28) 0%, transparent 55%),
+      radial-gradient(ellipse at 10% 90%, rgba(122,143,123,0.15) 0%, transparent 50%),
+      var(--hueso);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .brand-mark {
+    font-family: 'Jost', sans-serif;
+    font-size: 10px;
+    font-weight: 400;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: var(--gris);
+    margin-bottom: 52px;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 0.2s;
+  }
+
+  .oracle-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(48px, 11vw, 76px);
+    font-weight: 300;
+    line-height: 1.05;
+    text-align: center;
+    color: var(--morado);
+    margin-bottom: 14px;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 0.4s;
+  }
+
+  .oracle-subtitle {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(15px, 3.5vw, 20px);
+    font-style: italic;
+    font-weight: 300;
+    color: var(--gris);
+    text-align: center;
+    margin-bottom: 56px;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 0.55s;
+  }
+
+  .ornament {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 0 auto 44px;
+    opacity: 0;
+    animation: fadeIn 1s ease forwards 0.7s;
+  }
+  .ornament-line { width: 40px; height: 1px; background: var(--lavanda); }
+  .ornament-symbol {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    color: var(--lavanda);
+  }
+
+  .welcome-text {
+    font-size: 14px;
+    font-weight: 300;
+    line-height: 2.1;
+    text-align: center;
+    color: var(--gris);
+    max-width: 310px;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 0.85s;
+    margin-bottom: 56px;
+  }
+
+  .btn-primary {
+    font-family: 'Jost', sans-serif;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--hueso);
+    background: var(--morado);
+    border: none;
+    padding: 18px 52px;
+    cursor: pointer;
+    border-radius: 1px;
+    transition: all 0.3s ease;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 1.05s;
+  }
+  .btn-primary:hover {
+    background: var(--morado-oscuro);
+    transform: translateY(-2px);
+    box-shadow: 0 14px 40px rgba(94,75,115,0.28);
+  }
+
+  /* ══════════════════════════════
+     PANTALLA 2 — BARAJAR
+  ══════════════════════════════ */
+  #screen-shuffle {
+    min-height: 100vh;
+    padding: 48px 24px;
+    justify-content: center;
+    text-align: center;
+    background:
+      radial-gradient(ellipse at 80% 10%, rgba(191,175,214,0.28) 0%, transparent 55%),
+      radial-gradient(ellipse at 10% 90%, rgba(122,143,123,0.15) 0%, transparent 50%),
+      var(--hueso);
+  }
+
+  .shuffle-instruction {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(24px, 5.5vw, 36px);
+    font-weight: 300;
+    color: var(--morado);
+    line-height: 1.45;
+    margin-bottom: 10px;
+  }
+  .shuffle-sub {
+    font-size: 10px;
+    font-weight: 300;
+    letter-spacing: 3px;
+    color: var(--gris);
+    text-transform: uppercase;
+    margin-bottom: 56px;
+  }
+
+  .card-pile {
+    position: relative;
+    width: 170px;
+    height: 275px;
+    margin: 0 auto 28px;
+    cursor: pointer;
+  }
+
+  .pile-card {
+    position: absolute;
+    width: 152px; height: 244px;
+    border-radius: 14px;
+    background: linear-gradient(145deg, #6B5480 0%, var(--morado-oscuro) 100%);
+    border: 1px solid rgba(191,175,214,0.2);
+    left: 50%;
+    transition: transform 0.4s ease;
+  }
+  .pile-card:nth-child(1) { transform: translateX(-50%) rotate(-6deg); top: 0; }
+  .pile-card:nth-child(2) { transform: translateX(-50%) rotate(-3deg); top: 5px; }
+  .pile-card:nth-child(3) { transform: translateX(-50%) rotate(0deg);  top: 9px; }
+  .pile-card:nth-child(4) { transform: translateX(-50%) rotate(3deg);  top: 13px; }
+
+  .pile-card-front {
+    position: absolute;
+    width: 152px; height: 244px;
+    border-radius: 14px;
+    background: linear-gradient(145deg, #6B5480 0%, var(--morado-oscuro) 100%);
+    border: 1px solid rgba(191,175,214,0.25);
+    display: flex; align-items: center; justify-content: center; flex-direction: column;
+    gap: 6px;
+    top: 7px; left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    transition: all 0.3s ease;
+  }
+  .card-pile:hover .pile-card-front {
+    transform: translateX(-50%) translateY(-10px);
+    box-shadow: 0 22px 60px rgba(94,75,115,0.42);
+  }
+
+  .pile-moon { font-size: 36px; color: rgba(191,175,214,0.55); }
+  .pile-label {
+    font-size: 8px; letter-spacing: 4px;
+    text-transform: uppercase;
+    color: rgba(191,175,214,0.45);
+    font-weight: 300;
+  }
+
+  .shuffle-cta {
+    font-size: 11px; font-weight: 300; letter-spacing: 1px;
+    color: var(--lavanda);
+    margin-bottom: 36px;
+    animation: pulseAnim 2.2s ease-in-out infinite;
+  }
+
+  @keyframes pulseAnim {
+    0%, 100% { opacity: 0.55; }
+    50% { opacity: 1; }
+  }
+
+  #btnChoose { display: none; }
+
+  /* ══════════════════════════════
+     PANTALLA 3 — ELEGIR
+  ══════════════════════════════ */
+  #screen-choose {
+    min-height: 100vh;
+    padding: 56px 18px 50px;
+    background:
+      radial-gradient(ellipse at 80% 10%, rgba(191,175,214,0.22) 0%, transparent 55%),
+      var(--hueso);
+  }
+
+  .choose-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(24px, 5.5vw, 34px);
+    font-weight: 300; line-height: 1.3;
+    color: var(--morado); text-align: center;
+    margin-bottom: 8px;
+  }
+  .choose-sub {
+    font-size: 10px; font-weight: 300;
+    letter-spacing: 3px; color: var(--gris);
+    text-align: center; text-transform: uppercase;
+    margin-bottom: 44px;
+  }
+
+  .cards-spread {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 8px;
+    max-width: 520px;
+    width: 100%;
+    margin: 0 auto 36px;
+  }
+
+  @media (max-width: 420px) {
+    .cards-spread {
+      grid-template-columns: repeat(5, 1fr);
+      max-width: 360px;
+      gap: 6px;
+    }
+  }
+
+  .spread-card {
+    aspect-ratio: 2/3;
+    border-radius: 8px;
+    background: linear-gradient(145deg, #6B5480 0%, var(--morado-oscuro) 100%);
+    border: 1px solid rgba(191,175,214,0.18);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.38s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative; overflow: hidden;
+    opacity: 0;
+  }
+  .spread-card::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(191,175,214,0.18) 0%, transparent 60%);
+    opacity: 0; transition: opacity 0.3s;
+  }
+  .spread-card:hover {
+    transform: translateY(-16px) scale(1.07);
+    box-shadow: 0 22px 44px rgba(94,75,115,0.48);
+  }
+  .spread-card:hover::after { opacity: 1; }
+  .spread-icon { font-size: 16px; color: rgba(191,175,214,0.3); user-select: none; }
+
+  /* ══════════════════════════════
+     PANTALLA 4 — RESULTADO
+  ══════════════════════════════ */
+  #screen-card {
+    min-height: 100vh;
+    padding: 52px 22px 72px;
+    background:
+      radial-gradient(ellipse at 80% 10%, rgba(191,175,214,0.25) 0%, transparent 55%),
+      radial-gradient(ellipse at 10% 90%, rgba(122,143,123,0.12) 0%, transparent 50%),
+      var(--hueso);
+  }
+
+  .result-brand {
+    font-size: 9px; letter-spacing: 5px;
+    text-transform: uppercase; color: var(--gris);
+    margin-bottom: 40px; font-weight: 300;
+  }
+
+  .revealed-card {
+    width: min(268px, 80vw);
+    border-radius: 18px;
+    background: linear-gradient(150deg, #6B5480 0%, var(--morado-oscuro) 100%);
+    border: 1px solid rgba(191,175,214,0.22);
+    padding: 42px 26px 36px;
+    text-align: center;
+    margin-bottom: 36px;
+    box-shadow: 0 32px 80px rgba(61,47,78,0.38);
+    animation: cardReveal 0.72s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    position: relative; overflow: hidden;
+  }
+  .revealed-card::before {
+    content: '';
+    position: absolute;
+    width: 220px; height: 220px;
+    background: radial-gradient(circle, rgba(191,175,214,0.1) 0%, transparent 70%);
+    top: -70px; right: -70px; border-radius: 50%;
+  }
+  .revealed-card::after {
+    content: '';
+    position: absolute;
+    width: 140px; height: 140px;
+    background: radial-gradient(circle, rgba(122,143,123,0.08) 0%, transparent 70%);
+    bottom: -40px; left: -40px; border-radius: 50%;
+  }
+
+  @keyframes cardReveal {
+    from { opacity: 0; transform: scale(0.8) rotateY(28deg); }
+    to   { opacity: 1; transform: scale(1) rotateY(0deg); }
+  }
+
+  .card-number {
+    font-size: 9px; letter-spacing: 4px;
+    color: rgba(191,175,214,0.45);
+    text-transform: uppercase; margin-bottom: 22px;
+    font-weight: 300;
+  }
+  .card-symbol-big { font-size: 50px; margin-bottom: 16px; display: block; }
+  .card-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px; font-weight: 400;
+    color: var(--hueso); margin-bottom: 6px; line-height: 1.2;
+  }
+  .card-archetype {
+    font-size: 9px; letter-spacing: 3px;
+    color: var(--lavanda); text-transform: uppercase;
+    font-weight: 300; opacity: 0.7;
+  }
+
+  .card-content {
+    width: min(430px, 100%);
+    opacity: 0;
+    animation: fadeUp 0.6s ease forwards 0.55s;
+  }
+
+  .content-block {
+    background: white;
+    border-radius: 14px;
+    padding: 26px 22px;
+    margin-bottom: 10px;
+    border: 1px solid rgba(191,175,214,0.13);
+    text-align: left;
+    box-shadow: 0 4px 22px rgba(94,75,115,0.055);
+  }
+
+  .content-label {
+    font-size: 8px; letter-spacing: 4px;
+    text-transform: uppercase; color: var(--lavanda);
+    font-weight: 500; margin-bottom: 12px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .content-label::after {
+    content: ''; flex: 1; height: 1px;
+    background: var(--morado-claro); opacity: 0.35;
+  }
+
+  .content-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 17px; font-weight: 300;
+    line-height: 1.78; color: var(--morado-oscuro);
+  }
+
+  .mantra-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px; font-weight: 400;
+    font-style: italic; color: var(--morado);
+    line-height: 1.5; text-align: center; padding: 6px 0;
+  }
+
+  .aroma-chip {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: linear-gradient(135deg, rgba(94,75,115,0.07), rgba(191,175,214,0.13));
+    border: 1px solid rgba(191,175,214,0.32);
+    border-radius: 22px; padding: 10px 22px;
+    font-size: 13px; color: var(--morado);
+    font-family: 'Jost', sans-serif; font-weight: 400;
+  }
+  .aroma-chip-product {
+    font-size: 10px; color: var(--gris);
+    font-weight: 300; letter-spacing: 1px;
+    margin-top: 6px; text-align: center;
+  }
+
+  .btn-secondary {
+    font-family: 'Jost', sans-serif;
+    font-size: 10px; font-weight: 500;
+    letter-spacing: 3px; text-transform: uppercase;
+    color: var(--morado); background: transparent;
+    border: 1px solid var(--lavanda);
+    padding: 16px 40px; cursor: pointer;
+    border-radius: 1px; transition: all 0.3s ease;
+    display: block; width: 100%;
+    max-width: 280px; margin: 26px auto 0;
+  }
+  .btn-secondary:hover {
+    background: var(--morado); color: var(--hueso);
+    border-color: var(--morado);
+  }
+
+  .footer-brand {
+    font-size: 9px; letter-spacing: 3px;
+    text-transform: uppercase; color: var(--lavanda);
+    opacity: 0.55; text-align: center;
+    margin-top: 22px; padding-bottom: 8px;
+  }
+
+  /* Utilities */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; } to { opacity: 1; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══ BIENVENIDA ══ -->
+<div id="screen-welcome" class="screen active">
+  <div class="brand-mark">ZOI CENTRA · RITUA</div>
+  <div class="oracle-title">El Oráculo<br><em>RITUA</em></div>
+  <div class="oracle-subtitle">Donde habita tu energía vital</div>
+  <div class="ornament">
+    <div class="ornament-line"></div>
+    <div class="ornament-symbol">☽ ✦ ☾</div>
+    <div class="ornament-line"></div>
+  </div>
+  <p class="welcome-text">
+    Detente un momento.<br>
+    Lleva tu mano al corazón.<br>
+    Respira profundo.<br><br>
+    Siente qué emoción vive en ti ahora.<br>
+    El oráculo ya sabe.<br>
+    Confía en lo que llega.
+  </p>
+  <button class="btn-primary" onclick="goTo('screen-shuffle')">Comenzar el ritual</button>
+</div>
+
+<!-- ══ BARAJAR ══ -->
+<div id="screen-shuffle" class="screen">
+  <div class="brand-mark" style="opacity:1; margin-bottom:44px;">ZOI CENTRA · RITUA</div>
+  <div class="shuffle-instruction">Cierra los ojos.<br>Respira tres veces.<br>Baraja mentalmente.</div>
+  <div class="shuffle-sub">Con cada exhalación, suelta</div>
+
+  <div class="card-pile" id="cardPile" onclick="startShuffle()">
+    <div class="pile-card"></div>
+    <div class="pile-card"></div>
+    <div class="pile-card"></div>
+    <div class="pile-card"></div>
+    <div class="pile-card-front">
+      <span class="pile-moon">☽</span>
+      <span class="pile-label">RITUA</span>
+    </div>
+  </div>
+
+  <div class="shuffle-cta" id="shuffleCta">Toca las cartas para barajar</div>
+  <button class="btn-primary" id="btnChoose" onclick="goToChoose()">Estoy listo · Elegir mi carta</button>
+</div>
+
+<!-- ══ ELEGIR ══ -->
+<div id="screen-choose" class="screen">
+  <div class="brand-mark" style="opacity:1; margin-bottom:28px;">ZOI CENTRA · RITUA</div>
+  <div class="choose-title">¿Cuál carta<br>te llama ahora?</div>
+  <div class="choose-sub">Confía en tu primer impulso · 30 cartas</div>
+  <div class="cards-spread" id="cardsSpread"></div>
+  <p style="font-size:12px; font-weight:300; color:var(--gris); text-align:center; max-width:230px; line-height:1.95;">
+    No hay carta incorrecta.<br>Tu cuerpo ya sabe cuál necesitas.
+  </p>
+</div>
+
+<!-- ══ RESULTADO ══ -->
+<div id="screen-card" class="screen">
+  <div class="result-brand">ZOI CENTRA · RITUA</div>
+  <div class="revealed-card">
+    <div class="card-number" id="res-number"></div>
+    <span class="card-symbol-big" id="res-symbol"></span>
+    <div class="card-name" id="res-name"></div>
+    <div class="card-archetype" id="res-archetype"></div>
+  </div>
+  <div class="card-content">
+    <div class="content-block">
+      <div class="content-label">✦ Mensaje</div>
+      <div class="content-text" id="res-mensaje"></div>
+    </div>
+    <div class="content-block">
+      <div class="content-label">◯ Técnica</div>
+      <div class="content-text" id="res-tecnica"></div>
+    </div>
+    <div class="content-block" style="text-align:center;">
+      <div class="content-label" style="justify-content:center; margin-bottom:14px;">❋ Mantra</div>
+      <div class="mantra-text" id="res-mantra"></div>
+    </div>
+    <div class="content-block" style="text-align:center;">
+      <div class="content-label" style="justify-content:center; margin-bottom:14px;">◈ Aroma RITUA</div>
+      <div style="display:flex; flex-direction:column; align-items:center; gap:6px;">
+        <div class="aroma-chip">🌿 <span id="res-aroma-nombre"></span></div>
+        <div class="aroma-chip-product" id="res-aroma-desc"></div>
+      </div>
+    </div>
+    <button class="btn-secondary" onclick="restart()">Consultar de nuevo</button>
+    <div class="footer-brand">@zoicentra · vuelve a tu centro</div>
+  </div>
+</div>
+
+<script>
+const RITUA = {
+  SHANTI:  { nombre: "RITUA SHANTI",  desc: "Bruma · Paz profunda · Lavanda · Sándalo · Cedro" },
+  BACHUE:  { nombre: "RITUA BACHUÉ",  desc: "Bruma · Madre de la vida · Canela · Bosque · Mandarina" },
+  ANANDA:  { nombre: "RITUA ANANDA",  desc: "Bruma · Bienaventuranza · Vainilla · Jazmín · Lavanda" },
+  PRANA:   { nombre: "RITUA PRANA",   desc: "Roll-on · Energía vital · Naranja · Romero · Eucalipto" },
+};
+
+const cartas = [
+  // ── LAS 10 ORIGINALES ──
+  {
+    num:"I",   simb:"🫁", nombre:"Pecho Pesado",         arq:"El que Porta",
+    msg:"Lo que sientes en el pecho no es debilidad — es el cuerpo hablando lo que el alma aún no ha podido decir. Permítelo existir. Dale espacio. No lo apresures. Tu sistema nervioso está procesando algo real, algo sagrado. Respira hacia ese peso y recuerda: ya has cargado antes, y siempre encuentras el camino a casa.",
+    tec:"Tapping en el punto del corazón: lleva dos dedos al centro del pecho. Con cada toque suave repite internamente: 'Aunque siento este peso, me acepto profundamente'. Tres rondas. Inhala expansión, exhala liberación.",
+    mantra:'"Respiro hacia mi centro y encuentro calma."',
+    aroma: RITUA.SHANTI
+  },
+  {
+    num:"II",  simb:"🌀", nombre:"Mente que no Para",    arq:"El Pensador",
+    msg:"La mente que no para es un guerrero que olvidó que la batalla terminó. Hoy no necesitas resolver nada. No necesitas entenderlo todo. Tu único asunto ahora mismo es este instante, esta respiración, este cuerpo. Deja que los pensamientos pasen como nubes. Tú no eres tus pensamientos — eres el cielo que los contiene.",
+    tec:"Respiración 4-7-8: inhala cuatro tiempos, retén siete, exhala lentamente ocho. Repite cuatro ciclos. Lleva suavemente la mirada al entrecejo — activa el nervio vago y calma el sistema.",
+    mantra:'"Soy el testigo silencioso. Mi mente descansa."',
+    aroma: RITUA.SHANTI
+  },
+  {
+    num:"III", simb:"🌑", nombre:"No Sentirme Suficiente", arq:"El Buscador",
+    msg:"Lo que sientes no es la verdad — es una herida antigua que hoy encontró voz. La suficiencia no se gana, se recuerda. Estás hecho de la misma energía que mueve las estrellas. Tu valor no reside en lo que produces, sino en lo que eres. Y lo que eres es, siempre ha sido, suficiente.",
+    tec:"Tapping en la parte exterior de la mano: repite 'Aunque siento que no soy suficiente, me acepto y me amo'. Luego tapping suave en ceja, ojo, bajo el ojo, nariz, mentón, clavícula. Dos rondas completas con presencia total.",
+    mantra:'"Soy suficiente. Soy completo. Soy vida."',
+    aroma: RITUA.BACHUE
+  },
+  {
+    num:"IV",  simb:"☀️", nombre:"Gratitud",              arq:"El Receptor",
+    msg:"Hoy tu corazón está abierto. Estás en un momento de gracia — esa frecuencia que atrae lo que resuena. La gratitud es el lenguaje más elevado que puede hablar el cuerpo. Desde este estado, crea, confía, suelta el control. Lo que pertenece a tu camino no necesita ser forzado. Recíbelo.",
+    tec:"Meditación de expansión: siéntate, manos en el corazón. Visualiza una luz dorada irradiando desde tu pecho. Con cada exhalación, expándela. Nombra mentalmente tres cosas específicas por las que sientes gratitud hoy.",
+    mantra:'"Recibo con el corazón abierto. La vida fluye hacia mí."',
+    aroma: RITUA.ANANDA
+  },
+  {
+    num:"V",   simb:"🌊", nombre:"Duelo",                 arq:"El que Honra",
+    msg:"El duelo es amor sin lugar adonde ir. Y ese amor sigue siendo sagrado. No hay prisa aquí. No hay etapas correctas. Lo que sientes es exactamente lo que necesitas sentir ahora. Llora si necesitas llorar. Guarda silencio si necesitas silencio. Honra lo que fue. La vida continúa — pero primero, siéntela.",
+    tec:"Respiración coherente: inhala cinco tiempos, exhala cinco tiempos, sin retención. Ritmo suave y constante durante cinco minutos. Mano en el pecho. Permite que las emociones se muevan — no las dirijas, solo acompáñalas.",
+    mantra:'"Honro lo que fue. Me permito sentir. Soy sostenido."',
+    aroma: RITUA.ANANDA
+  },
+  {
+    num:"VI",  simb:"🍂", nombre:"Agotamiento",           arq:"El que Descansa",
+    msg:"Tu cuerpo no está fallando — está comunicando. El agotamiento es la sabiduría del organismo diciéndote que el ritmo actual no es sostenible. Hoy el acto más radical es descansar sin culpa. Recargarte no es rendirte — es prepararte. La naturaleza descansa entre estaciones. Tú también puedes.",
+    tec:"Yoga Nidra express: acuéstate o siéntate. Cierra los ojos. Lleva la conciencia a cada parte del cuerpo lentamente, de pies a cabeza. Sin mover nada — solo observar. Diez minutos de esto equivalen a horas de restauración para el sistema nervioso.",
+    mantra:'"Me permito descansar. En la pausa también me renuevo."',
+    aroma: RITUA.ANANDA
+  },
+  {
+    num:"VII", simb:"🕊️", nombre:"Soltar",                arq:"El Liberador",
+    msg:"Hay cosas que el alma sabe que ya terminaron, pero la mente se aferra por miedo al vacío. El vacío no es pérdida — es espacio sagrado donde lo nuevo puede nacer. Soltar no es olvidar ni traicionar. Es confiar en que el río sabe hacia dónde fluye. Abre las manos. Respira. Suelta.",
+    tec:"Respiración de liberación: inhala profundo visualizando lo que necesitas soltar. Al exhalar, abre los labios y deja salir el aire como un suspiro largo y completo. Con cada exhalación visualiza esa energía transformándose en luz. Cinco repeticiones con plena intención.",
+    mantra:'"Suelto lo que ya no me pertenece. Confío en el flujo."',
+    aroma: RITUA.SHANTI
+  },
+  {
+    num:"VIII",simb:"⚡", nombre:"Ansiedad",              arq:"El que Ancla",
+    msg:"La ansiedad visita el cuerpo cuando la mente viaja al futuro sin llevar al cuerpo consigo. Tráete de vuelta. Aquí. Ahora. Siente tus pies en el suelo. Siente el peso de tu cuerpo. Este momento — este único momento — es donde estás a salvo. El pasado terminó. El futuro aún no existe. Solo existe este respiro.",
+    tec:"5-4-3-2-1: nombra cinco cosas que ves, cuatro que tocas físicamente, tres que escuchas, dos que hueles, una que saboreas. Luego siete respiraciones lentas. Ancla el sistema nervioso al único momento real que existe: ahora.",
+    mantra:'"Estoy aquí. Estoy a salvo. Este momento es suficiente."',
+    aroma: RITUA.SHANTI
+  },
+  {
+    num:"IX",  simb:"🪨", nombre:"Estancamiento",         arq:"El que Despierta",
+    msg:"Lo que sientes como estancamiento a veces es gestación. La semilla bajo tierra no está quieta — está convirtiéndose. Quizás este momento no pide movimiento hacia afuera, sino movimiento hacia adentro. El primer paso no tiene que ser grande. Solo tiene que ser honesto.",
+    tec:"Movimiento consciente: de pie, cierra los ojos. Comienza a mover el cuerpo desde el centro — suave, sin patrón establecido. Deja que el cuerpo encuentre su propio movimiento por cinco minutos. Sin coreografía. Solo presencia y escucha corporal.",
+    mantra:'"Me muevo desde el centro. Cada momento es un nuevo comienzo."',
+    aroma: RITUA.PRANA
+  },
+  {
+    num:"X",   simb:"🌿", nombre:"Identidad",             arq:"El que se Conoce",
+    msg:"Atravesar transformaciones profundas a veces hace que no reconozcamos quiénes somos. Eso no es pérdida — es mudanza. La semilla no recuerda ser árbol mientras está brotando. No necesitas tenerlo todo claro hoy. Solo necesitas seguir siendo honesto contigo mismo. Tu esencia es permanente. Tu forma puede cambiar.",
+    tec:"Journaling meditativo: sin pensar, escribe durante cinco minutos comenzando con 'Quien soy más allá de mis roles es…'. Sin parar, sin editar, sin juzgar. Lo que emerge en el movimiento continuo es verdad.",
+    mantra:'"Mi esencia es permanente. Me permito transformarme."',
+    aroma: RITUA.ANANDA
+  },
+
+  // ── LAS 20 NUEVAS ──
+  {
+    num:"XI",  simb:"🌫️", nombre:"Miedo",                 arq:"El que Enfrenta",
+    msg:"El miedo no es tu enemigo — es un mensajero antiguo que viene a cuidarte. Pero a veces olvida que ya creciste, que ya sobreviviste, que ya tienes herramientas que antes no tenías. Míralo a los ojos. Pregúntale qué intenta proteger. Ahí, en ese diálogo honesto, el miedo pierde su poder y se convierte en información.",
+    tec:"Técnica de enraizamiento: de pie, siente el contacto de tus pies con el suelo. Presiona suavemente. Visualiza raíces saliendo de tus plantas y penetrando la tierra. Respira hacia el vientre — no al pecho. Cinco respiraciones profundas sintiendo el peso de tu cuerpo.",
+    mantra:'"Estoy anclado. Tengo todo lo que necesito para este momento."',
+    aroma: RITUA.BACHUE
+  },
+  {
+    num:"XII", simb:"🔥", nombre:"Rabia",                 arq:"El que Siente",
+    msg:"La rabia es una de las emociones más mal entendidas. No es mala — es información. Hay un límite que fue cruzado, una necesidad que no fue vista, una verdad que lleva tiempo queriendo ser dicha. No la reprimas ni la explotes. Siéntela en el cuerpo. Escucha lo que defiende. La rabia bien habitada se convierte en claridad.",
+    tec:"Liberación somática: de pie, toma tres respiraciones profundas. En la exhalación, permite que el cuerpo haga un movimiento — sacudir los brazos, pisotear suave, hacer sonido. Sin dirección, solo movimiento. El cuerpo sabe cómo procesar lo que la mente aún no puede nombrar.",
+    mantra:'"Siento todo sin perder mi centro. Soy más grande que esta emoción."',
+    aroma: RITUA.BACHUE
+  },
+  {
+    num:"XIII",simb:"🌙", nombre:"Soledad",               arq:"El que se Encuentra",
+    msg:"Hay una diferencia entre estar solo y sentirse solo. La soledad profunda a veces es la señal de que te has alejado de ti mismo — de tu cuerpo, de tu voz interior, de lo que realmente sientes. Antes de buscar afuera, detente. ¿Puedes hacerte compañía? ¿Puedes ser el lugar seguro que estás buscando?",
+    tec:"Abrazo propio: cruza los brazos sobre el pecho y abrázate suavemente. Cierra los ojos. Respira lento. Permanece así por dos minutos. El tacto propio activa oxitocina — el cuerpo no distingue si el abrazo es tuyo o de otro. Eres suficiente compañía.",
+    mantra:'"Estoy conmigo. Soy mi propio hogar."',
+    aroma: RITUA.ANANDA
+  },
+  {
+    num:"XIV", simb:"🌺", nombre:"Vergüenza",             arq:"El que se Libera",
+    msg:"La vergüenza vive en el silencio y se alimenta de la oscuridad. Su antídoto no es la perfección — es la compasión. Lo que sientes vergüenza de ser o de haber hecho ya no define lo que eres. Eres un ser en proceso constante. La humanidad no está en no equivocarse — está en cómo te tratas cuando lo haces.",
+    tec:"Tapping de autocompasión: lleva la mano al corazón. Repite en voz baja: 'Es humano lo que siento. No estoy solo en esto. Me ofrezco compasión'. Luego tapping suave en el punto de la clavícula durante un minuto completo.",
+    mantra:'"Soy humano y eso es sagrado. Me ofrezco compasión."',
+    aroma: RITUA.BACHUE
+  },
+  {
+    num:"XV",  simb:"🌪️", nombre:"Confusión",            arq:"El que Espera",
+    msg:"La confusión no es fracaso — es el espacio entre lo que fue y lo que aún no es. No necesitas claridad ahora mismo. Necesitas tolerancia a la incertidumbre, que es quizás una de las formas más valientes de existir. La respuesta llega cuando el cuerpo está lo suficientemente tranquilo para escucharla.",
+    tec:"Meditación de rendición: siéntate con la espalda recta. Respira naturalmente. Cada vez que llegue un pensamiento de 'pero qué hago', exhala y mentalmente di 'no sé, y está bien'. Repite durante cinco minutos. La rendición al no saber es el primer paso hacia saber.",
+    mantra:'"No necesito saberlo todo hoy. La claridad llega cuando me calmo."',
+    aroma: RITUA.SHANTI
+  },
+  {
+    num:"XVI", simb:"✨", nombre:"Alegría",               arq:"El que Celebra",
+    msg:"Cuando llega la alegría — recíbela. Completamente. Sin el 'pero' que la minimiza, sin el miedo de que se vaya. La alegría también merece ser habitada con toda tu presencia. Expándela. Compártela. Permite que el cuerpo la celebre. Eres merecedor de este momento de ligereza.",
+    tec:"Expansión de alegría: de pie o sentado, lleva la atención a la sensación de alegría en el cuerpo. ¿Dónde la sientes? ¿Cómo es su textura? Ahora, con cada inhalación, imagina que esa sensación se expande. Sonríe suavemente — aunque sea una sonrisa pequeña. El cuerpo responde.",
+    mantra:'"Merezco alegría. La recibo y la expando."',
+    aroma: RITUA.PRANA
+  },
+  {
+    num:"XVII",simb:"💜", nombre:"Amor Propio",           arq:"El que se Elige",
+    msg:"El amor propio no es un estado que se alcanza — es una práctica diaria de elegirte. De hablarte con amabilidad cuando te equivocas. De descansar cuando lo necesitas. De decir no cuando algo no resuena. Hoy te invitamos a un acto pequeño y radical: trátate como tratarías a alguien que amas profundamente.",
+    tec:"Carta a ti mismo: toma papel y escribe tres cosas que aprecias de quien eres — no de lo que haces, sino de quien eres. Si sientes resistencia, eso mismo es lo que necesitas sanar. Empieza con una sola cosa. Una es suficiente.",
+    mantra:'"Me elijo. Me cuido. Me amo como acto sagrado."',
+    aroma: RITUA.ANANDA
+  },
+  {
+    num:"XVIII",simb:"🪴",nombre:"Límites",               arq:"El que se Cuida",
+    msg:"Un límite no es un muro — es una puerta que tú decides quién puede cruzar. Poner límites no te hace difícil ni egoísta. Te hace honesto. Los límites son la forma que tiene el amor propio de manifestarse en el mundo real. Cuando dices no a algo que te agota, estás diciendo sí a tu energía vital.",
+    tec:"Claridad somática: lleva tu atención al centro del cuerpo. Piensa en algo que te piden y que sientes que no resuena. ¿El cuerpo se contrae o se expande? Practica confiar en esa señal. El cuerpo sabe antes que la mente.",
+    mantra:'"Mis límites son sagrados. Donde digo no, también hay amor."',
+    aroma: RITUA.BACHUE
+  },
+  {
+    num:"XIX", simb:"🌾", nombre:"Rendición",            arq:"El que Suelta el Control",
+    msg:"Rendirse no es perder — es reconocer que hay fuerzas más grandes que la voluntad personal. Hay momentos en que el acto más poderoso no es seguir empujando, sino soltar el control y confiar. El universo, la vida, el prana — lleva mucho más tiempo funcionando que tu plan. Confía.",
+    tec:"Práctica de entrega: acuéstate boca arriba. Cierra los ojos. Con cada exhalación repite mentalmente: 'Lo suelto'. Permite que el cuerpo se hunda más en el suelo con cada respiración. Diez minutos en este estado de rendición consciente.",
+    mantra:'"Me rindo al flujo de la vida. Confío en lo que no puedo controlar."',
+    aroma: RITUA.SHANTI
+  },
+  {
+    num:"XX",  simb:"🌸", nombre:"Presencia",            arq:"El que Habita",
+    msg:"El único momento en que realmente estás vivo es este. No el de ayer — que ya no existe. No el de mañana — que aún no es. Este. Ahora. Aquí. La presencia no es un lujo espiritual — es el acto más humano que existe. Vuelve. Una y otra vez. Siempre puedes volver.",
+    tec:"Scan corporal de presencia: cierra los ojos. Empieza por los pies — ¿qué sientes ahí? Sube lentamente por piernas, abdomen, pecho, brazos, cuello, cabeza. Sin cambiar nada — solo observar. Dos minutos de este recorrido te devuelven al único lugar donde la vida ocurre.",
+    mantra:'"Estoy aquí. Estoy presente. Este momento es real."',
+    aroma: RITUA.SHANTI
+  },
+  {
+    num:"XXI", simb:"🦋", nombre:"Transición",           arq:"El que Cruza",
+    msg:"Las transiciones son los umbrales más incómodos de la vida humana. No eres lo que eras, pero tampoco eres aún lo que serás. Estás en el entre. Y el entre, aunque incierto, es un espacio sagrado de posibilidad. No necesitas llegar ya. Solo necesitas seguir cruzando.",
+    tec:"Respiración de umbral: inhala visualizando lo que dejas atrás — dale gracias. Retén un momento. Exhala visualizando hacia dónde vas — confía. Este ciclo de tres respiraciones marca simbólica y fisiológicamente el movimiento de un estado a otro.",
+    mantra:'"Estoy en el umbral. Confío en el camino que se abre."',
+    aroma: RITUA.ANANDA
+  },
+  {
+    num:"XXII",simb:"🧘",nombre:"Cuerpo",                arq:"El que Escucha",
+    msg:"Tu cuerpo ha estado hablando todo el tiempo. El cansancio, la tensión en los hombros, el nudo en el estómago — todo es lenguaje. No es el enemigo al que hay que silenciar o transformar. Es el instrumento más sofisticado que tienes. Vuelve a él. Escúchalo. Habita la casa que siempre ha sido tuya.",
+    tec:"Escucha somática: siéntate o acuéstate cómodamente. Pregúntale a tu cuerpo: '¿Qué necesitas hoy?' Sin expectativa de respuesta verbal — solo observa qué sensación emerge. Quizás es calor, tensión, relajación. Esa es la respuesta. El cuerpo siempre responde.",
+    mantra:'"Mi cuerpo es mi hogar. Lo escucho, lo honro, lo habito."',
+    aroma: RITUA.BACHUE
+  },
+  {
+    num:"XXIII",simb:"🔮",nombre:"Intuición",            arq:"El que Sabe",
+    msg:"Hay una voz dentro de ti que sabe. No la del miedo — esa es más ruidosa y urgente. Sino la quieta, la que aparece en el silencio entre un pensamiento y otro. La que ya respondió antes de que terminaras de formular la pregunta. Esa es tu intuición. Aprende a distinguirla. Ella nunca miente.",
+    tec:"Práctica de la pausa: cuando debas tomar una decisión, detente antes de pensar. Lleva una mano al corazón, otra al abdomen. Respira. Haz la pregunta en silencio. Observa qué siente el cuerpo antes de que la mente intervenga. La primera respuesta corporal es tu brújula.",
+    mantra:'"Confío en mi voz interior. Mi intuición es sagrada."',
+    aroma: RITUA.SHANTI
+  },
+  {
+    num:"XXIV",simb:"🌻",nombre:"Abundancia",            arq:"El que Recibe",
+    msg:"La abundancia no es solo material — es una frecuencia de apertura. Es sentirte merecedor de lo bueno. Es reconocer lo que ya tienes mientras sigues construyendo. La escasez vive en la mente. La abundancia, en el corazón. Hoy te invitamos a sintonizar con lo que ya está presente en tu vida.",
+    tec:"Inventario de abundancia: cierra los ojos y nombra mentalmente —sin prisa— todo lo que tienes: el aire en tus pulmones, el cuerpo que te mueve, la persona que te vino a la mente al despertar, una comida que disfrutaste esta semana. La gratitud específica abre el campo de recepción.",
+    mantra:'"Soy un canal de abundancia. Lo que necesito siempre llega."',
+    aroma: RITUA.PRANA
+  },
+  {
+    num:"XXV", simb:"🌾", nombre:"Silencio",             arq:"El que Escucha Dentro",
+    msg:"Vivimos tan rápido que el silencio se volvió incómodo. Pero es en el silencio donde las respuestas más importantes tienen espacio para emerger. No hay que hacer nada en el silencio — solo estar. Ser. Existir sin producir, sin rendir cuentas, sin demostrar. Solo tú, tu respiración y el espacio entre un latido y otro.",
+    tec:"Meditación de silencio: pon un temporizador de siete minutos. Sin música, sin guía. Siéntate y observa. Cada vez que llegue un pensamiento, nómbralo ('pensando') y déjalo ir. No es sobre vaciar la mente — es sobre aprender a no seguir a cada pensamiento. El músculo del silencio se entrena.",
+    mantra:'"En mi silencio vive mi sabiduría."',
+    aroma: RITUA.SHANTI
+  },
+  {
+    num:"XXVI",simb:"🌷",nombre:"Vulnerabilidad",        arq:"El que se Abre",
+    msg:"La vulnerabilidad no es debilidad — es el acto más valiente de la existencia humana. Mostrarte sin armadura, decir 'no sé', pedir ayuda, admitir que algo te afecta — eso requiere una fortaleza que la dureza nunca tendrá. Tu apertura no te hace frágil. Te hace real. Y lo real siempre conecta.",
+    tec:"Respiración de apertura: inhala expandiendo el pecho completamente. Abre levemente los brazos hacia los lados mientras inhalas — como recibir un abrazo del universo. Al exhalar, cierra los brazos sobre el pecho. Repite cinco veces. Apertura y contención en el mismo ciclo.",
+    mantra:'"Mi apertura es mi fortaleza. Me permito ser visto."',
+    aroma: RITUA.ANANDA
+  },
+  {
+    num:"XXVII",simb:"⭐",nombre:"Propósito",            arq:"El que Busca",
+    msg:"El propósito no es un destino que se encuentra — es algo que se va revelando en el hacer, en el servir, en lo que te mueve aunque estés cansado. No tiene que ser grandioso. A veces el propósito más poderoso vive en algo cotidiano: en cómo prestas atención, en cómo cuidas, en cómo te muestras en lo ordinario.",
+    tec:"Exploración de propósito: en una hoja, escribe sin pensar: '¿Qué haría aunque no me pagaran? ¿Qué me hace perder la noción del tiempo? ¿Con qué tipo de personas me siento más vivo?' Las respuestas son pistas. El propósito ya está dentro — solo necesita espacio para emergir.",
+    mantra:'"Mi presencia en el mundo es suficiente propósito."',
+    aroma: RITUA.PRANA
+  },
+  {
+    num:"XXVIII",simb:"🌕",nombre:"Ciclos",             arq:"El que Fluye",
+    msg:"Todo en la naturaleza se mueve en ciclos — la luna, las estaciones, el mar, tu propio cuerpo. No hay nada roto en tus altibajos. Son parte del ritmo sagrado de estar vivo. Los ciclos no se controlan — se honran. ¿En qué ciclo estás ahora? ¿Es tiempo de sembrar, de cultivar, de cosechar o de descansar?",
+    tec:"Observación de ciclos: siéntate con un diario. Traza un círculo y divídelo en cuatro partes: inicio, desarrollo, cierre, descanso. ¿Dónde estás en este ciclo de tu vida? Sin juzgar la fase — cada una es necesaria y cada una es temporal.",
+    mantra:'"Fluyo con mis ciclos. Cada fase tiene su sabiduría."',
+    aroma: RITUA.BACHUE
+  },
+  {
+    num:"XXIX",simb:"🤝", nombre:"Conexión",            arq:"El que Vuelve",
+    msg:"Los seres humanos estamos hechos para conectar. Con otros, con la naturaleza, con nosotros mismos. Cuando sientes desconexión, generalmente hay una de estas tres vínculos que pide atención. ¿Con quién o con qué necesitas reconectar hoy? La conexión no se fuerza — se facilita con presencia y apertura.",
+    tec:"Práctica de conexión: elige a una persona y escríbele un mensaje genuino — no para pedir ni dar noticias, sino solo para decirle que la tienes presente. O sal a caminar descalzo si puedes. El contacto con la tierra y con lo vivo recarga el sistema nervioso de formas que pocas cosas logran.",
+    mantra:'"Estoy conectado. Pertenezco. No estoy solo."',
+    aroma: RITUA.PRANA
+  },
+  {
+    num:"XXX", simb:"🌄", nombre:"Renacer",             arq:"El que Emerge",
+    msg:"Has atravesado algo. Quizás una crisis, una pérdida, un ciclo agotador. Y aquí estás — buscando, preguntando, abierto a lo que sigue. Eso es renacer. No de manera dramática, sino con la silenciosa dignidad de quien eligió seguir. No tienes que ser quien eras antes. Puedes ser más. Puedes ser quien viene después.",
+    tec:"Ritual de nuevo comienzo: enciende una vela si tienes una. Escribe en un papel lo que quieres dejar atrás. Luego escribe en otro papel una intención para este nuevo ciclo. Dobla el primero y guárdalo — o quémalo con intención. El ritual le dice al cuerpo: esto es real, esto importa.",
+    mantra:'"Renazco desde mi centro. Lo que viene es mejor."',
+    aroma: RITUA.PRANA
+  },
+];
+
+let shuffled = false;
+
+function goTo(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function startShuffle() {
+  if (shuffled) return;
+  shuffled = true;
+  const cards = document.querySelectorAll('.pile-card, .pile-card-front');
+  let count = 0;
+  const interval = setInterval(() => {
+    cards.forEach(c => {
+      c.style.transition = 'transform 0.14s ease';
+      c.style.transform = `translateX(calc(-50% + ${(Math.random()*44-22)}px)) rotate(${Math.random()*26-13}deg)`;
+    });
+    count++;
+    if (count > 10) {
+      clearInterval(interval);
+      setTimeout(() => {
+        document.querySelector('.pile-card:nth-child(1)').style.transform = 'translateX(-50%) rotate(-6deg)';
+        document.querySelector('.pile-card:nth-child(2)').style.transform = 'translateX(-50%) rotate(-3deg)';
+        document.querySelector('.pile-card:nth-child(3)').style.transform = 'translateX(-50%) rotate(0deg)';
+        document.querySelector('.pile-card:nth-child(4)').style.transform = 'translateX(-50%) rotate(3deg)';
+        document.querySelector('.pile-card-front').style.transform = 'translateX(-50%)';
+        const cta = document.getElementById('shuffleCta');
+        cta.textContent = '✦ Las cartas están listas ✦';
+        cta.style.animation = 'none';
+        cta.style.opacity = '1';
+        cta.style.color = 'var(--verde)';
+        const btn = document.getElementById('btnChoose');
+        btn.style.display = 'block';
+        btn.style.animation = 'fadeUp 0.5s ease forwards';
+      }, 320);
+    }
+  }, 160);
+}
+
+function goToChoose() {
+  goTo('screen-choose');
+  buildSpread();
+}
+
+function buildSpread() {
+  const container = document.getElementById('cardsSpread');
+  container.innerHTML = '';
+  const indices = [...Array(30).keys()].sort(() => Math.random() - 0.5);
+  indices.forEach((idx, i) => {
+    const div = document.createElement('div');
+    div.className = 'spread-card';
+    div.innerHTML = '<span class="spread-icon">☽</span>';
+    div.addEventListener('click', () => showCard(idx));
+    container.appendChild(div);
+    setTimeout(() => {
+      div.style.transition = 'opacity 0.4s ease, transform 0.38s cubic-bezier(0.34,1.56,0.64,1)';
+      div.style.opacity = '1';
+    }, i * 40 + 60);
+  });
+}
+
+function showCard(idx) {
+  const c = cartas[idx];
+  document.getElementById('res-number').textContent = `Carta ${c.num}`;
+  document.getElementById('res-symbol').textContent = c.simb;
+  document.getElementById('res-name').textContent = c.nombre;
+  document.getElementById('res-archetype').textContent = c.arq;
+  document.getElementById('res-mensaje').textContent = c.msg;
+  document.getElementById('res-tecnica').textContent = c.tec;
+  document.getElementById('res-mantra').textContent = c.mantra;
+  document.getElementById('res-aroma-nombre').textContent = c.aroma.nombre;
+  document.getElementById('res-aroma-desc').textContent = c.aroma.desc;
+  goTo('screen-card');
+}
+
+function restart() {
+  shuffled = false;
+  const btn = document.getElementById('btnChoose');
+  btn.style.display = 'none';
+  const cta = document.getElementById('shuffleCta');
+  cta.textContent = 'Toca las cartas para barajar';
+  cta.style.color = 'var(--lavanda)';
+  cta.style.animation = 'pulseAnim 2.2s ease-in-out infinite';
+  goTo('screen-welcome');
+}
+</script>
+</body>
+</html>
